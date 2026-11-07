@@ -93,7 +93,7 @@
     .date-row { display:-webkit-flex; display:flex; gap:4vw; margin-top:5vh; }
     .date-chip { font-size:3vw; letter-spacing:0.22em; text-transform:uppercase; }
 
-    /* DOS COLUMNAS */
+    /* PAINEL INFERIOR */
     .bottom {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:row; flex-direction:row;
@@ -101,44 +101,73 @@
       position:relative; z-index:2; min-height:0;
     }
     .panel {
-      -webkit-flex:1; flex:1;
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:column; flex-direction:column;
-      padding:1.5vh 2.5vw; overflow:hidden;
+      padding:1.5vh 1.8vw; overflow:hidden; min-width:0;
     }
-    .panel-left { border-right-width:0; border-right-style:none; width:100%; }
+    .panel-left {
+      width:43%; -webkit-flex:0 0 43%; flex:0 0 43%;
+      border-right-width:1px; border-right-style:solid;
+    }
+    .panel-right {
+      width:57%; -webkit-flex:1; flex:1;
+    }
     .panel-label {
-      font-size:0.9vw; letter-spacing:0.3em; text-transform:uppercase;
+      font-size:1.05vw; letter-spacing:0.2em; text-transform:uppercase;
       margin-bottom:1vh;
       border-bottom-width:1px; border-bottom-style:solid;
       padding-bottom:0.5vh;
     }
 
-    /* CLIMA */
+    /* CLIMA ATUAL */
     .weather-row {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:row; flex-direction:row;
       -webkit-align-items:center; align-items:center;
-      gap:2vw; width:100%;
+      width:100%;
     }
     .weather-main {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:column; flex-direction:column;
       -webkit-align-items:flex-start; align-items:flex-start;
+      -webkit-flex:0 0 48%; flex:0 0 48%;
     }
     .temp-wrap { position:relative; display:inline-block; line-height:1; }
     .temp-ghost {
       font-family:'DSEG7','Courier New',monospace;
-      font-size:15vw; letter-spacing:0.035em;
+      font-size:11vw; letter-spacing:0.025em;
       position:absolute; top:0; left:0;
     }
     .temp-real {
       font-family:'DSEG7','Courier New',monospace;
-      font-size:15vw; letter-spacing:0.035em; position:relative;
+      font-size:11vw; letter-spacing:0.025em; position:relative;
     }
-    .temp-real sup { font-size:3.5vw; vertical-align:super; opacity:0.75; font-family:'Share Tech Mono','Courier New',monospace; }
-    .w-desc { margin-top:1vh; font-size:1.7vw; letter-spacing:0.12em; text-transform:uppercase; }
-    .w-meta { margin-top:0; font-size:2.1vw; line-height:2.0; letter-spacing:0.045em; }
+    .temp-real sup { font-size:2.7vw; vertical-align:super; opacity:0.75; font-family:'Share Tech Mono','Courier New',monospace; }
+    .w-desc { margin-top:0.8vh; font-size:1.35vw; letter-spacing:0.08em; text-transform:uppercase; }
+    .w-meta { margin-left:1.3vw; margin-top:0; font-size:1.35vw; line-height:2.0; letter-spacing:0.025em; white-space:nowrap; }
+
+    /* PREVISÃO DE 7 DIAS */
+    .forecast-row {
+      display:-webkit-flex; display:flex;
+      -webkit-flex-direction:row; flex-direction:row;
+      -webkit-justify-content:space-between; justify-content:space-between;
+      -webkit-align-items:stretch; align-items:stretch;
+      width:100%; height:100%; min-height:0;
+    }
+    .forecast-day {
+      display:-webkit-flex; display:flex;
+      -webkit-flex-direction:column; flex-direction:column;
+      -webkit-align-items:center; align-items:center;
+      -webkit-justify-content:space-around; justify-content:space-around;
+      width:14%; text-align:center; min-width:0;
+      border-right:1px solid rgba(120,150,80,0.18);
+    }
+    .forecast-day:last-child { border-right:0; }
+    .forecast-name { font-size:1.15vw; letter-spacing:0.05em; }
+    .forecast-icon { font-size:2.6vw; line-height:1.2; }
+    .forecast-high { font-size:1.55vw; font-weight:bold; }
+    .forecast-low { font-size:1.35vw; }
+    .forecast-caption { font-size:0.85vw; letter-spacing:0.08em; margin-top:0.4vh; }
 
   </style>
 </head>
@@ -171,6 +200,10 @@
     <div class="panel panel-left" id="panel-left">
       <div class="panel-label" id="panel-label-left">&#9650; TEMPO / PIRACICABA</div>
       <div id="weather-section"><div class="msg" id="w-msg">CARREGANDO_</div></div>
+    </div>
+    <div class="panel panel-right" id="panel-right">
+      <div class="panel-label" id="panel-label-right">&#9632; PRÓXIMOS 7 DIAS</div>
+      <div id="forecast-section"><div class="msg">CARREGANDO_</div></div>
     </div>
   </div>
 </div>
@@ -261,6 +294,10 @@
     document.getElementById('panel-left').style.borderRightColor = c.segOff;
     colorEls('panel-label', c.label);
     document.getElementById('panel-label-left').style.borderBottomColor = c.segOff;
+    var pr=document.getElementById('panel-right');
+    if (pr) pr.style.borderLeftColor=c.segOff;
+    var plr=document.getElementById('panel-label-right');
+    if (plr) plr.style.borderBottomColor=c.segOff;
     // Weather
     applyWeatherColors(c);
     // Store
@@ -285,6 +322,15 @@
     if (wm) { wm.style.color = c.label; colorBolds(wm, c.segOn); }
     var msg = document.getElementById('w-msg');
     if (msg) msg.style.color = c.segDim;
+    var forecast=document.getElementById('forecast-section');
+    if (forecast) {
+      var fitems=forecast.getElementsByTagName('*');
+      for (var fi=0;fi<fitems.length;fi++) {
+        var cls=fitems[fi].className||'';
+        if (cls==='forecast-name' || cls==='forecast-low') fitems[fi].style.color=c.label;
+        if (cls==='forecast-icon' || cls==='forecast-high') fitems[fi].style.color=c.segOn;
+      }
+    }
   }
 
   function colorBolds(el, color) {
@@ -318,6 +364,41 @@
     }
   }
 
+  // ── PREVISÃO ───────────────────────────────────────────────
+  var WMO_ICON={0:'☀',1:'☀',2:'⛅',3:'☁',45:'≋',48:'≋',51:'☂',53:'☂',55:'☂',
+    61:'☂',63:'☂',65:'☂',71:'❄',73:'❄',75:'❄',80:'☂',81:'☂',82:'☂',
+    85:'❄',95:'⚡',96:'⚡',99:'⚡'};
+
+  function dayLabel(iso, index) {
+    if (index === 0) return 'HOJE';
+    var parts=iso.split('-');
+    var date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
+    return DIAS[date.getDay()];
+  }
+
+  function renderForecast(d, c) {
+    var target=document.getElementById('forecast-section');
+    if (!d.daily || !d.daily.time || !d.daily.temperature_2m_max) {
+      target.innerHTML='<div class="msg" style="color:'+c.segDim+'">SEM PREVISÃO_</div>';
+      return;
+    }
+    var daily=d.daily, out='<div class="forecast-row">';
+    for (var i=0;i<daily.time.length && i<7;i++) {
+      var code=daily.weather_code[i];
+      var icon=WMO_ICON[code]||'·';
+      var hi=Math.round(daily.temperature_2m_max[i]);
+      var lo=Math.round(daily.temperature_2m_min[i]);
+      out+='<div class="forecast-day">'+
+        '<div class="forecast-name" style="color:'+c.label+'">'+dayLabel(daily.time[i],i)+'</div>'+
+        '<div class="forecast-icon" style="color:'+c.segOn+'">'+icon+'</div>'+
+        '<div class="forecast-high" style="color:'+c.segOn+'">'+hi+'°</div>'+
+        '<div class="forecast-low" style="color:'+c.segDim+'">'+lo+'°</div>'+
+      '</div>';
+    }
+    out+='</div>';
+    target.innerHTML=out;
+  }
+
   // ── CLIMA ─────────────────────────────────────────────────
   function fetchWeather() {
     var xhr=new XMLHttpRequest();
@@ -345,8 +426,12 @@
               '</div>'+
               '<div class="w-meta" style="color:'+c.label+'">SENSAÇÃO <b style="color:'+c.segOn+'">'+sens+'°</b><br>UMIDADE <b style="color:'+c.segOn+'">'+hum+'%</b><br>VENTO <b style="color:'+c.segOn+'">'+wind+' KM/H</b></div>'+
             '</div>';
+          renderForecast(d,c);
         }catch(e){el.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';}
-      }else{el.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';}
+      }else{
+        el.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';
+        document.getElementById('forecast-section').innerHTML='<div class="msg" style="color:'+c.segDim+'">SEM PREVISÃO_</div>';
+      }
     };
     xhr.send();
   }
