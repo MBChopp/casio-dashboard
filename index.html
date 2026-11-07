@@ -115,19 +115,30 @@
     }
 
     /* CLIMA */
+    .weather-row {
+      display:-webkit-flex; display:flex;
+      -webkit-flex-direction:row; flex-direction:row;
+      -webkit-align-items:center; align-items:center;
+      gap:2vw; width:100%;
+    }
+    .weather-main {
+      display:-webkit-flex; display:flex;
+      -webkit-flex-direction:column; flex-direction:column;
+      -webkit-align-items:flex-start; align-items:flex-start;
+    }
     .temp-wrap { position:relative; display:inline-block; line-height:1; }
     .temp-ghost {
       font-family:'DSEG7','Courier New',monospace;
-      font-size:9vw; letter-spacing:0.04em;
+      font-size:15vw; letter-spacing:0.035em;
       position:absolute; top:0; left:0;
     }
     .temp-real {
       font-family:'DSEG7','Courier New',monospace;
-      font-size:9vw; letter-spacing:0.04em; position:relative;
+      font-size:15vw; letter-spacing:0.035em; position:relative;
     }
-    .temp-real sup { font-size:2.5vw; vertical-align:super; opacity:0.75; font-family:'Share Tech Mono','Courier New',monospace; }
-    .w-desc { margin-top:0.8vh; font-size:1.05vw; letter-spacing:0.1em; text-transform:uppercase; }
-    .w-meta { margin-top:0.6vh; font-size:1.05vw; line-height:1.9; }
+    .temp-real sup { font-size:3.5vw; vertical-align:super; opacity:0.75; font-family:'Share Tech Mono','Courier New',monospace; }
+    .w-desc { margin-top:1vh; font-size:1.7vw; letter-spacing:0.12em; text-transform:uppercase; }
+    .w-meta { margin-top:0; font-size:2.1vw; line-height:2.0; letter-spacing:0.045em; }
 
   </style>
 </head>
@@ -324,12 +335,16 @@
           var hum=d.hourly.relativehumidity_2m[h]!==undefined?d.hourly.relativehumidity_2m[h]:'--';
           var wind=Math.round(cw.windspeed);
           el.innerHTML=
-            '<div class="temp-wrap">'+
-              '<div class="temp-ghost" style="color:'+c.segOff+'">88!</div>'+
-              '<div class="temp-real" style="color:'+c.segOn+';text-shadow:0 0 12px '+c.glow+'">'+temp+'<sup>°C</sup></div>'+
-            '</div>'+
-            '<div class="w-desc" style="color:'+c.segDim+'">'+(WMO[cw.weathercode]||'--')+'</div>'+
-            '<div class="w-meta" style="color:'+c.label+'">SENS. <b style="color:'+c.segOn+'">'+sens+'°</b> &nbsp; UMID. <b style="color:'+c.segOn+'">'+hum+'%</b><br>VENTO <b style="color:'+c.segOn+'">'+wind+' KM/H</b></div>';
+            '<div class="weather-row">'+
+              '<div class="weather-main">'+
+                '<div class="temp-wrap">'+
+                  '<div class="temp-ghost" style="color:'+c.segOff+'">88!</div>'+
+                  '<div class="temp-real" style="color:'+c.segOn+';text-shadow:0 0 12px '+c.glow+'">'+temp+'<sup>°C</sup></div>'+
+                '</div>'+
+                '<div class="w-desc" style="color:'+c.segDim+'">'+(WMO[cw.weathercode]||'--')+'</div>'+
+              '</div>'+
+              '<div class="w-meta" style="color:'+c.label+'">SENSAÇÃO <b style="color:'+c.segOn+'">'+sens+'°</b><br>UMIDADE <b style="color:'+c.segOn+'">'+hum+'%</b><br>VENTO <b style="color:'+c.segOn+'">'+wind+' KM/H</b></div>'+
+            '</div>';
         }catch(e){el.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';}
       }else{el.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';}
     };
